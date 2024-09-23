@@ -4,21 +4,30 @@ import { supabase } from '../lib/supabaseClient';
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState(''); // Ad için yeni state
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signUp(
+      {
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name, // Kullanıcı adını user_metadata içinde ekliyoruz
+          },
+        },
+      }
+    );
     if (error) {
       setError(error.message);
     } else {
       setMessage('Kayıt başarılı! Lütfen giriş yapın.');
       setEmail('');
       setPassword('');
+      setName(''); // Formu temizlerken adı da sıfırlıyoruz
     }
   };
 
@@ -28,6 +37,16 @@ export default function Register() {
       {error && <p className="text-danger">{error}</p>}
       {message && <p className="text-success">{message}</p>}
       <form onSubmit={handleRegister}>
+        <div className="mb-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Adınız"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
         <div className="mb-3">
           <input
             type="email"

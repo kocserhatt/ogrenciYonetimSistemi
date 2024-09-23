@@ -32,7 +32,9 @@ export default function Login() {
       <h2 className="text-center">Giriş Yap</h2>
       {error && <p className="text-danger">{error}</p>}
       {user ? (
-        <p className="text-success">Giriş başarılı, hoş geldin {user.email}!</p>
+        <p className="text-success">
+          Giriş başarılı, hoş geldin <strong>{user.user_metadata?.full_name || user.email}</strong>!
+        </p>
       ) : (
         <form onSubmit={handleLogin}>
           <div className="mb-3">
