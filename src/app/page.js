@@ -8,18 +8,51 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showRegister, setShowRegister] = useState(false);
+  const [grades, setGrades] = useState([]);
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { user } = session;
-        setUser({
-          email: user.email,
-          name: user.user_metadata?.full_name || user.email, // Kullanıcı adını almak için full_name kullanıyoruz
-        });
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+
+        if (session) {
+          const { user } = session;
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+          if (userError) {
+            console.error('Kullanıcı rolü alınamadı:', userError.message);
+          } else {
+            setUser({
+              email: user.email,
+              name: user.user_metadata?.full_name || user.email, // Kullanıcı adını almak için full_name kullanıyoruz
+              role: userData.role, // Kullanıcı rolünü ekleyin
+            });
+
+            // Eğer kullanıcı öğrenci ise notları al
+            if (userData.role === 'student') {
+              const { data: gradesData, error: gradesError } = await supabase
+                .from('grades')
+                .select('*')
+                .eq('user_id', user.id);
+
+              if (gradesError) {
+                console.error('Notlar alınamadı:', gradesError.message);
+              } else {
+                setGrades(gradesData);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Hata:', error.message);
+      } finally {
+        setLoading(false); // Yüklenme durumunu kapat
       }
-      setLoading(false);
     };
 
     getUser();
@@ -29,6 +62,7 @@ export default function Home() {
     const { error } = await supabase.auth.signOut();
     if (!error) {
       setUser(null);
+      window.location.href = '/'; // Çıkış yaptıktan sonra ana sayfaya yönlendir
     } else {
       console.error('Çıkış hatası:', error.message);
     }
@@ -49,99 +83,52 @@ export default function Home() {
 
       {user ? (
         <>
-          <div>
-            <p className="mb-3">
-              Giriş Yapan Kullanıcı: <strong>{user.name}</strong>
-            </p>
-            <button className="btn btn-danger" onClick={handleLogout}>
-              Çıkış Yap
-            </button>
-          </div>
-          <div className="mt-4">
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">Dersler</th>
-                  <th scope="col">İlk Sınav</th>
-                  <th scope="col">İkinci Sınav</th>
-                  <th scope="col">Proje</th>
-                  <th scope="col">Ortalama</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">Matematik</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Türk Dili Ve Edibiyatı</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Fizik</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Biyoloji</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Kimya</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Din</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Felsefe</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Resim</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Müzik</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-                <tr>
-                  <th scope="row">Beden Eğitim</th>
-                  <td colSpan="1">80</td>
-                  <td>50</td>
-                  <td>45</td>
-                  <td>58,333</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {user.role === 'student' ? (
+            <>
+              <div>
+                <p className="mb-3">
+                  Giriş Yapan Kullanıcı: <strong>{user.name}</strong>
+                </p>
+                <button className="btn btn-danger" onClick={handleLogout}>
+                  Çıkış Yap
+                </button>
+              </div>
+              <div className="mt-4">
+                <table className="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">Dersler</th>
+                      <th scope="col">İlk Sınav</th>
+                      <th scope="col">İkinci Sınav</th>
+                      <th scope="col">Proje</th>
+                      <th scope="col">Ortalama</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {grades.map((grade) => (
+                      <tr key={grade.id}>
+                        <th scope="row">{grade.course_name}</th>
+                        <td>{grade.exam1}</td>
+                        <td>{grade.exam2}</td>
+                        <td>{grade.project}</td>
+                        <td>{((grade.exam1 + grade.exam2 + grade.project) / 3).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <div>
+              <p>Admin sayfasına yönlendiriliyorsunuz...  <a href="/admin">admin sayfası</a></p>
+              <p className="mb-3">
+                  Giriş Yapan Kullanıcı: <strong>{user.name} / {user.role}</strong>
+                </p>
+              <button className="btn btn-danger" onClick={handleLogout}>
+                  Çıkış Yap
+                </button>
+            </div>
+          )}
         </>
       ) : (
         <div>

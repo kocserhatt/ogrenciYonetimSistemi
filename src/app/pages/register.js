@@ -10,7 +10,7 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signUp(
+    const { data, error } = await supabase.auth.signUp(
       {
         email,
         password,
@@ -21,13 +21,30 @@ export default function Register() {
         },
       }
     );
+
     if (error) {
       setError(error.message);
     } else {
-      setMessage('Kayıt başarılı! Lütfen giriş yapın.');
-      setEmail('');
-      setPassword('');
-      setName(''); // Formu temizlerken adı da sıfırlıyoruz
+      const user = data.user;
+      if (user) {
+        // Insert user data into the custom users table with role 'öğrenci'
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert([
+            { id: user.id, email, full_name: name, role: 'student' }
+          ]);
+
+        if (insertError) {
+          setError(insertError.message);
+        } else {
+          setMessage('Kayıt başarılı! Lütfen giriş yapın.');
+          setEmail('');
+          setPassword('');
+          setName(''); // Formu temizlerken adı da sıfırlıyoruz
+        }
+      } else {
+        setError('User registration failed.');
+      }
     }
   };
 
