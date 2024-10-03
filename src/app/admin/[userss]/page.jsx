@@ -199,7 +199,7 @@ export default function AdminStudentDetail() {
         </div>
       )}
       <p><strong>G</strong>=Girilmedi</p>
-      <p><strong>H</strong>=Hesapmanlamadı</p>
+      <p><strong>H</strong>=Hesaplanmadı</p>
     </div>
   );
 }
