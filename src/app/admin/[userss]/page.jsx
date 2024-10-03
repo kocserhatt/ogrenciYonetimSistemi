@@ -163,17 +163,6 @@ export default function AdminStudentDetail() {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="exam1" className="form-label">İlk Sınav</label>
-              <input
-                type="number"
-                className="form-control"
-                id="exam1"
-                name="exam1"
-                value={editGrade.exam1 !== null ? editGrade.exam1 : ''}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="mb-3">
               <label htmlFor="exam2" className="form-label">İkinci Sınav</label>
               <input
                 type="number"
