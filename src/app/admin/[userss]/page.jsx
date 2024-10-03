@@ -67,11 +67,21 @@ export default function AdminStudentDetail() {
 
   const handleUpdateGrade = async (e) => {
     e.preventDefault();
+
+    // Notların 100'den büyük olup olmadığını kontrol et
+    if (
+      (editGrade.exam1 !== null && editGrade.exam1 > 100) ||
+      (editGrade.exam2 !== null && editGrade.exam2 > 100) ||
+      (editGrade.project !== null && editGrade.project > 100)
+    ) {
+      alert('100 den büyük not giremezsiniz');
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('grades')
         .update({
-          course_name: editGrade.course_name,
           exam1: editGrade.exam1 !== null ? parseInt(editGrade.exam1) : null,
           exam2: editGrade.exam2 !== null ? parseInt(editGrade.exam2) : null,
           project: editGrade.project !== null ? parseInt(editGrade.project) : null,
@@ -96,7 +106,7 @@ export default function AdminStudentDetail() {
 
   const calculateAverage = (grade) => {
     const scores = [grade.exam1, grade.exam2, grade.project].filter(score => score !== null);
-    if (scores.length === 0) return 'Hesaplanamadı';
+    if (scores.length === 0) return 'H';
     const sum = scores.reduce((acc, score) => acc + score, 0);
     return (sum / scores.length).toFixed(2);
   };
@@ -188,6 +198,8 @@ export default function AdminStudentDetail() {
           </form>
         </div>
       )}
+      <p><strong>G</strong>=Girilmedi</p>
+      <p><strong>H</strong>=Hesapmanlamadı</p>
     </div>
   );
 }

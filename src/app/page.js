@@ -77,7 +77,7 @@ export default function Home() {
   }
   const calculateAverage = (grade) => {
     const scores = [grade.exam1, grade.exam2, grade.project].filter(score => score !== null);
-    if (scores.length === 0) return 'Hesaplanamadı';
+    if (scores.length === 0) return 'H';
     const sum = scores.reduce((acc, score) => acc + score, 0);
     return (sum / scores.length).toFixed(2);
   };
@@ -122,6 +122,8 @@ export default function Home() {
                   ))}
                   </tbody>
                 </table>
+                  <p><strong>G</strong>=Girilmedi</p>
+                  <p><strong>H</strong>=Hesapmanlamadı</p>
               </div>
             </>
           ) : (
