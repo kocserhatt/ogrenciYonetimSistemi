@@ -75,6 +75,12 @@ export default function Home() {
       </div>
     );
   }
+  const calculateAverage = (grade) => {
+    const scores = [grade.exam1, grade.exam2, grade.project].filter(score => score !== null);
+    if (scores.length === 0) return 'Hesaplanamadı';
+    const sum = scores.reduce((acc, score) => acc + score, 0);
+    return (sum / scores.length).toFixed(2);
+  };
 
   return (
     <div className="container text-center mt-5">
@@ -105,15 +111,15 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody>
-                    {grades.map((grade) => (
-                      <tr key={grade.id}>
-                        <th scope="row">{grade.course_name}</th>
-                        <td>{grade.exam1}</td>
-                        <td>{grade.exam2}</td>
-                        <td>{grade.project}</td>
-                        <td>{((grade.exam1 + grade.exam2 + grade.project) / 3).toFixed(2)}</td>
-                      </tr>
-                    ))}
+                  {grades.map((grade) => (
+                    <tr key={grade.id}>
+                      <th scope="row">{grade.course_name}</th>
+                      <td>{grade.exam1 !== null ? grade.exam1 : 'G'}</td>
+                      <td>{grade.exam2 !== null ? grade.exam2 : 'G'}</td>
+                      <td>{grade.project !== null ? grade.project : 'G'}</td>
+                      <td>{calculateAverage(grade)}</td>
+                    </tr>
+                  ))}
                   </tbody>
                 </table>
               </div>

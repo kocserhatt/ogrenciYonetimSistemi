@@ -8,12 +8,6 @@ export default function AdminStudentDetail() {
   const [grades, setGrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editGrade, setEditGrade] = useState(null);
-  const [newGrade, setNewGrade] = useState({
-    course_name: '',
-    exam1: '',
-    exam2: '',
-    project: '',
-  });
   const router = useRouter();
   const params = useParams();
   const { userss } = params;
@@ -65,17 +59,10 @@ export default function AdminStudentDetail() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (editGrade) {
-      setEditGrade((prevGrade) => ({
-        ...prevGrade,
-        [name]: value,
-      }));
-    } else {
-      setNewGrade((prevGrade) => ({
-        ...prevGrade,
-        [name]: value,
-      }));
-    }
+    setEditGrade((prevGrade) => ({
+      ...prevGrade,
+      [name]: value,
+    }));
   };
 
   const handleUpdateGrade = async (e) => {
@@ -85,9 +72,9 @@ export default function AdminStudentDetail() {
         .from('grades')
         .update({
           course_name: editGrade.course_name,
-          exam1: parseInt(editGrade.exam1),
-          exam2: parseInt(editGrade.exam2),
-          project: parseInt(editGrade.project),
+          exam1: editGrade.exam1 !== null ? parseInt(editGrade.exam1) : null,
+          exam2: editGrade.exam2 !== null ? parseInt(editGrade.exam2) : null,
+          project: editGrade.project !== null ? parseInt(editGrade.project) : null,
         })
         .eq('id', editGrade.id);
 
@@ -107,38 +94,11 @@ export default function AdminStudentDetail() {
     }
   };
 
-  const handleAddGrade = async (e) => {
-    e.preventDefault();
-    try {
-      const { data, error } = await supabase
-        .from('grades')
-        .insert([
-          {
-            user_id: userss,
-            course_name: newGrade.course_name,
-            exam1: parseInt(newGrade.exam1),
-            exam2: parseInt(newGrade.exam2),
-            project: parseInt(newGrade.project),
-          },
-        ]);
-
-      if (error) {
-        console.error('Not eklenemedi:', error.message);
-      } else {
-        console.log('Not eklendi:', data);
-        if (data && data.length > 0) {
-          setGrades((prevGrades) => [...prevGrades, data[0]]);
-        }
-        setNewGrade({
-          course_name: '',
-          exam1: '',
-          exam2: '',
-          project: '',
-        });
-      }
-    } catch (error) {
-      console.error('Veri ekleme hatası:', error.message);
-    }
+  const calculateAverage = (grade) => {
+    const scores = [grade.exam1, grade.exam2, grade.project].filter(score => score !== null);
+    if (scores.length === 0) return 'Hesaplanamadı';
+    const sum = scores.reduce((acc, score) => acc + score, 0);
+    return (sum / scores.length).toFixed(2);
   };
 
   if (loading) {
@@ -170,10 +130,10 @@ export default function AdminStudentDetail() {
           {grades.map((grade) => (
             <tr key={grade.id}>
               <th scope="row">{grade.course_name}</th>
-              <td>{grade.exam1}</td>
-              <td>{grade.exam2}</td>
-              <td>{grade.project}</td>
-              <td>{((grade.exam1 + grade.exam2 + grade.project) / 3).toFixed(2)}</td>
+              <td>{grade.exam1 !== null ? grade.exam1 : 'G'}</td>
+              <td>{grade.exam2 !== null ? grade.exam2 : 'G'}</td>
+              <td>{grade.project !== null ? grade.project : 'G'}</td>
+              <td>{calculateAverage(grade)}</td>
               <td>
                 <button className="btn btn-primary" onClick={() => handleEditClick(grade)}>
                   Düzenle
@@ -189,15 +149,17 @@ export default function AdminStudentDetail() {
           <h2 className="text-center mb-4">Not Düzenle</h2>
           <form onSubmit={handleUpdateGrade}>
             <div className="mb-3">
-              <label htmlFor="course_name" className="form-label">Ders Adı</label>
+              <h3 className="form-label">Ders Adı: {editGrade.course_name}</h3>
+            </div>
+            <div className="mb-3">
+              <label htmlFor="exam1" className="form-label">İlk Sınav</label>
               <input
-                type="text"
+                type="number"
                 className="form-control"
-                id="course_name"
-                name="course_name"
-                value={editGrade.course_name}
+                id="exam1"
+                name="exam1"
+                value={editGrade.exam1 !== null ? editGrade.exam1 : ''}
                 onChange={handleInputChange}
-                required
               />
             </div>
             <div className="mb-3">
@@ -207,9 +169,8 @@ export default function AdminStudentDetail() {
                 className="form-control"
                 id="exam1"
                 name="exam1"
-                value={editGrade.exam1}
+                value={editGrade.exam1 !== null ? editGrade.exam1 : ''}
                 onChange={handleInputChange}
-                required
               />
             </div>
             <div className="mb-3">
@@ -219,9 +180,8 @@ export default function AdminStudentDetail() {
                 className="form-control"
                 id="exam2"
                 name="exam2"
-                value={editGrade.exam2}
+                value={editGrade.exam2 !== null ? editGrade.exam2 : ''}
                 onChange={handleInputChange}
-                required
               />
             </div>
             <div className="mb-3">
@@ -231,70 +191,14 @@ export default function AdminStudentDetail() {
                 className="form-control"
                 id="project"
                 name="project"
-                value={editGrade.project}
+                value={editGrade.project !== null ? editGrade.project : ''}
                 onChange={handleInputChange}
-                required
               />
             </div>
             <button type="submit" className="btn btn-primary">Not Güncelle</button>
           </form>
         </div>
       )}
-
-      <div className="mt-4">
-        <h2 className="text-center mb-4">Yeni Not Ekle</h2>
-        <form onSubmit={handleAddGrade}>
-          <div className="mb-3">
-            <label htmlFor="course_name" className="form-label">Ders Adı</label>
-            <input
-              type="text"
-              className="form-control"
-              id="course_name"
-              name="course_name"
-              value={newGrade.course_name}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="exam1" className="form-label">İlk Sınav</label>
-            <input
-              type="number"
-              className="form-control"
-              id="exam1"
-              name="exam1"
-              value={newGrade.exam1}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="exam2" className="form-label">İkinci Sınav</label>
-            <input
-              type="number"
-              className="form-control"
-              id="exam2"
-              name="exam2"
-              value={newGrade.exam2}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="project" className="form-label">Proje</label>
-            <input
-              type="number"
-              className="form-control"
-              id="project"
-              name="project"
-              value={newGrade.project}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">Not Ekle</button>
-        </form>
-      </div>
     </div>
   );
 }
