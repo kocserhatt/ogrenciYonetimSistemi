@@ -145,7 +145,7 @@ export default function AdminStudentDetail() {
       </table>
 
       {editGrade && (
-        <div className="mt-4">
+        <div className="mt-4 mb-5">
           <h2 className="text-center mb-4">Not Düzenle</h2>
           <form onSubmit={handleUpdateGrade}>
             <div className="mb-3">
