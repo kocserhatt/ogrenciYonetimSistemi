@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { supabase } from '@/app/lib/supabaseClient';
 
 export default function AdminStudentDetail() {
@@ -8,7 +8,6 @@ export default function AdminStudentDetail() {
   const [grades, setGrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editGrade, setEditGrade] = useState(null);
-  const router = useRouter();
   const params = useParams();
   const { userss } = params;
 
@@ -68,7 +67,6 @@ export default function AdminStudentDetail() {
   const handleUpdateGrade = async (e) => {
     e.preventDefault();
 
-    // Notların 100'den büyük olup olmadığını kontrol et
     if (
       (editGrade.exam1 !== null && editGrade.exam1 > 100) ||
       (editGrade.exam2 !== null && editGrade.exam2 > 100) ||

@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState(''); // Ad için yeni state
+  const [name, setName] = useState(''); 
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
@@ -16,7 +16,7 @@ export default function Register() {
         password,
         options: {
           data: {
-            full_name: name, // Kullanıcı adını user_metadata içinde ekliyoruz
+            full_name: name,
           },
         },
       }
@@ -27,7 +27,6 @@ export default function Register() {
     } else {
       const user = data.user;
       if (user) {
-        // Insert user data into the custom users table with role 'öğrenci'
         const { error: insertError } = await supabase
           .from('users')
           .insert([
@@ -40,7 +39,7 @@ export default function Register() {
           setMessage('Kayıt başarılı! Lütfen giriş yapın.');
           setEmail('');
           setPassword('');
-          setName(''); // Formu temizlerken adı da sıfırlıyoruz
+          setName('');
         }
       } else {
         setError('User registration failed.');

@@ -9,7 +9,7 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(null); // Hata mesajını sıfırla
+    setError(null); 
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -20,9 +20,9 @@ export default function Login() {
       console.error('Giriş hatası:', error);
       setError(error.message);
     } else {
-      setUser(data.user); // Kullanıcı bilgilerini state'e kaydet
+      setUser(data.user); 
       setTimeout(() => {
-        window.location.reload(); // Sayfayı 2 saniye sonra yenile
+        window.location.reload(); 
       }, 1000);
     }
   };

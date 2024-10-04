@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Next.js Router'ı içe aktarın
-import { supabase } from '@/app/lib/supabaseClient'; // Dosya yolunu kontrol edin
+import { useRouter } from 'next/navigation'; 
+import { supabase } from '@/app/lib/supabaseClient'; 
 
 export default function AdminPage() {
   const [user, setUser] = useState(null);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter(); // useRouter kancasını burada tanımlayın
+  const router = useRouter(); 
 
   useEffect(() => {
     const getUserAndFetchStudents = async () => {
@@ -26,7 +26,6 @@ export default function AdminPage() {
           if (userError) {
             console.error('Kullanıcı rolü alınamadı:', userError.message);
           } else {
-            // Eğer kullanıcı teacher değilse ana sayfaya yönlendir
             if (userData.role === 'student') {
               router.push('/');
               return;
@@ -38,25 +37,24 @@ export default function AdminPage() {
               role: userData.role,
             });
 
-            // Öğrenci verilerini al
             const { data: studentsData, error: studentsError } = await supabase
               .from('users')
               .select('id, full_name, email')
-              .eq('role', 'student'); // 'öğrenci' yerine 'student' olarak değiştirdiniz
+              .eq('role', 'student'); 
 
             if (studentsError) {
               console.error('Öğrenciler alınamadı:', studentsError.message);
             } else {
-              console.log('Fetched students:', studentsData); // Verileri konsola yazdırarak kontrol edin
+              console.log('Fetched students:', studentsData);
               setStudents(studentsData);
             }
           }
         } else {
-          router.push('/'); // Oturum yoksa ana sayfaya yönlendir
+          router.push('/');
         }
       } catch (error) {
         console.error('Hata:', error.message);
-        router.push('/'); // Hata durumunda ana sayfaya yönlendir
+        router.push('/'); 
       } finally {
         setLoading(false);
       }

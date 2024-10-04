@@ -1,8 +1,8 @@
 "use client";
 import { supabase } from './lib/supabaseClient';
 import { useEffect, useState } from 'react';
-import Register from './pages/register'; // Kayıt bileşeni
-import Login from './pages/login'; // Giriş bileşeni
+import Register from './pages/register';
+import Login from './pages/login';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -29,11 +29,10 @@ export default function Home() {
           } else {
             setUser({
               email: user.email,
-              name: user.user_metadata?.full_name || user.email, // Kullanıcı adını almak için full_name kullanıyoruz
-              role: userData.role, // Kullanıcı rolünü ekleyin
+              name: user.user_metadata?.full_name || user.email,
+              role: userData.role, 
             });
 
-            // Eğer kullanıcı öğrenci ise notları al
             if (userData.role === 'student') {
               const { data: gradesData, error: gradesError } = await supabase
                 .from('grades')
@@ -51,7 +50,7 @@ export default function Home() {
       } catch (error) {
         console.error('Hata:', error.message);
       } finally {
-        setLoading(false); // Yüklenme durumunu kapat
+        setLoading(false); 
       }
     };
 
@@ -62,7 +61,7 @@ export default function Home() {
     const { error } = await supabase.auth.signOut();
     if (!error) {
       setUser(null);
-      window.location.href = '/'; // Çıkış yaptıktan sonra ana sayfaya yönlendir
+      window.location.href = '/'; 
     } else {
       console.error('Çıkış hatası:', error.message);
     }
