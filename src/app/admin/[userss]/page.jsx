@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/app/lib/supabaseClient';
+import Swal from 'sweetalert2'; // SweetAlert2'yi import edin
 
 export default function AdminStudentDetail() {
   const [student, setStudent] = useState(null);
@@ -96,6 +97,15 @@ export default function AdminStudentDetail() {
           )
         );
         setEditGrade(null);
+        
+        Swal.fire({
+          title: 'Başarılı!',
+          text: 'Not başarılı bir şekilde güncellendi.',
+          icon: 'success',
+          confirmButtonText: 'Tamam'
+        }).then(() => {
+          window.location.reload();
+        });
       }
     } catch (error) {
       console.error('Veri güncelleme hatası:', error.message);
